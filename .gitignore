@@ -22,6 +22,3 @@ npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Actions ワークフローは token に workflow スコープが付くまで未追跡
-.github/workflows/

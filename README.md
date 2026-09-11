@@ -69,10 +69,26 @@ RESULT 画面右下の `ANALYSIS: AI / LOCAL` でどちらが使われたか分�
 `prompt` は `src/lib/ai.ts` の `buildAnalysisPrompt()` で組み立てた分析指示
 （断定しない・ネガティブを出さない・回答が薄いときの言い回し）です。
 
-## デプロイ
+## デプロイ（GitHub Pages）
 
-`npm run build` の `dist/` を任意の静的ホスティング（Netlify / Vercel / GitHub Pages / Cloudflare Pages など）に置くだけです。
-`base: './'` なのでサブディレクトリ配置でも動きます。HTTPS で配信すると
+公開 URL: **https://kasugai-s-web.github.io/hidden-skill/**
+リポジトリ: https://github.com/kasugai-s-web/hidden-skill （`main` = ソース、`gh-pages` = ビルド済みサイト）
+
+更新手順（ローカルミラー `C:\Users\hp\dev\hidden-skill` で実行）:
+
+```bash
+npm run deploy
+```
+
+`scripts/deploy-pages.ps1` がビルドして `dist/` を `gh-pages` ブランチへ force push します。
+数十秒で反映されます。ソースの変更は別途 `git push origin main` してください。
+
+`.github/workflows/deploy.yml` に Actions での自動デプロイも用意していますが、
+現在の `gh` トークンに `workflow` スコープが無いため未追跡にしています。
+使う場合は `gh auth refresh -h github.com -s workflow` 後に `.gitignore` の該当行を外し、
+リポジトリ設定の Pages → Source を「GitHub Actions」に変更してください。
+
+`base: './'` なのでサブディレクトリ配置でも動きます。HTTPS で配信されるため
 iPhone Safari の「ホーム画面に追加」でフルスクリーンのアプリとして起動できます。
 
 ## データの扱い
