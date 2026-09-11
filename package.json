@@ -9,8 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "fonts": "node scripts/fetch-fonts.mjs",
-    "icons": "node scripts/gen-icons.mjs",
-    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy-pages.ps1"
+    "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
