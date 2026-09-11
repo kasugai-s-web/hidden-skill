@@ -1,0 +1,53 @@
+import type { ClassKey, StatKey, StrengthKey } from '../data/strengths';
+
+export interface TopStrength {
+  key: StrengthKey | null;
+  en: string;
+  ja: string;
+}
+
+/** アプリ内で使う分析結果（AI/フォールバック共通） */
+export interface AnalysisResult {
+  mainStrength: TopStrength;
+  mainStrengthDescription: string;
+  topStrengths: TopStrength[];
+  classKey: ClassKey;
+  className: string;
+  classNameJa: string;
+  classDescription: string;
+  summary: string;
+  message: string;
+  stats: Record<StatKey, number>;
+  source: 'ai' | 'local';
+}
+
+/** AI API から返ってくる想定の JSON（仕様書 21 章） */
+export interface AiAnalysisJson {
+  mainStrength: string;
+  mainStrengthDescription: string;
+  topStrengths: string[];
+  className: string;
+  classNameJa: string;
+  classDescription: string;
+  summary: string;
+  message: string;
+  stats: {
+    trust: number;
+    support: number;
+    action: number;
+    communication: number;
+    problemSolving: number;
+  };
+}
+
+export type Screen = 'start' | 'player' | 'question' | 'analyzing' | 'result';
+
+export interface SavedState {
+  version: 1;
+  screen: Screen;
+  name: string;
+  answers: string[];
+  index: number;
+  result: AnalysisResult | null;
+  updatedAt: number;
+}
