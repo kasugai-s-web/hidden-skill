@@ -4,11 +4,13 @@ import { PixelButton } from './PixelButton';
 interface Props {
   hasProgress: boolean;
   savedName: string;
+  recordCount: number;
   onStart: () => void;
   onContinue: () => void;
+  onRecords: () => void;
 }
 
-export function StartScreen({ hasProgress, savedName, onStart, onContinue }: Props) {
+export function StartScreen({ hasProgress, savedName, recordCount, onStart, onContinue, onRecords }: Props) {
   return (
     <section className="screen screen--center">
       <div className="title-wrap">
@@ -39,6 +41,11 @@ export function StartScreen({ hasProgress, savedName, onStart, onContinue }: Pro
           [ START ]
         </PixelButton>
         {hasProgress && <div className="continue-note">STARTを押すと途中データは消えて最初から始まります</div>}
+        {recordCount > 0 && (
+          <PixelButton variant="ghost" size="sm" se="tap" onClick={onRecords}>
+            ▤ RECORDS ({recordCount})
+          </PixelButton>
+        )}
       </div>
 
       <div className="title-meta">

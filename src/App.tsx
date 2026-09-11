@@ -4,18 +4,21 @@ import { analyzeWithAI } from './lib/ai';
 import { analyzeLocally } from './lib/analyze';
 import { sound } from './lib/sound';
 import {
+  addHistoryEntry,
   clearState,
+  deleteHistoryEntry,
   emptyAnswers,
-  hasProgress as checkProgress,
+  loadHistory,
   loadSoundPref,
   loadState,
   saveSoundPref,
   saveState,
 } from './lib/storage';
-import type { AnalysisResult, Screen } from './lib/types';
+import type { AnalysisResult, HistoryEntry, Screen } from './lib/types';
 import { AnalyzingScreen } from './components/AnalyzingScreen';
 import { PlayerInputScreen } from './components/PlayerInputScreen';
 import { QuestionScreen } from './components/QuestionScreen';
+import { RecordsScreen } from './components/RecordsScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { SoundButton } from './components/SoundButton';
 import { StartScreen } from './components/StartScreen';
@@ -32,20 +35,29 @@ export default function App() {
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [soundOn, setSoundOn] = useState(() => loadSoundPref());
   const [resultShown, setResultShown] = useState(false);
+  const [historyId, setHistoryId] = useState<string | null>(saved?.historyId ?? null);
+  const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
+  /** RECORDS から開いている記録（null なら今回の診断結果を表示中） */
+  const [viewingEntry, setViewingEntry] = useState<HistoryEntry | null>(null);
   const analyzingRef = useRef(false);
+
+  const hasProgress = Boolean(name) || answers.some((a) => a.trim()) || Boolean(result);
 
   // 途中再開用の保存
   useEffect(() => {
-    if (screen === 'start' && !checkProgress(saved) && !name && answers.every((a) => !a)) return;
+    if (!hasProgress) return;
+    // start / records 画面に戻っただけでは進捗を失わない（CONTINUE 用）
+    const persistScreen: Screen =
+      screen === 'start' || screen === 'records' ? (result ? 'result' : name ? 'question' : 'player') : screen;
     saveState({
-      // start 画面に戻っただけでは進捗を失わない（CONTINUE 用）
-      screen: screen === 'start' ? (saved?.screen ?? 'start') : screen,
+      screen: persistScreen,
       name,
       answers,
       index,
       result,
+      historyId,
     });
-  }, [screen, name, answers, index, result, saved]);
+  }, [screen, name, answers, index, result, historyId, hasProgress]);
 
   useEffect(() => {
     sound.setEnabled(soundOn);
@@ -65,6 +77,8 @@ export default function App() {
     setIndex(0);
     setResult(null);
     setResultShown(false);
+    setHistoryId(null);
+    setViewingEntry(null);
     setDirection('forward');
   }, []);
 
@@ -74,12 +88,12 @@ export default function App() {
   };
 
   const continueSaved = () => {
-    if (!saved) return;
     setDirection('forward');
-    if (saved.screen === 'result' && saved.result) {
+    setViewingEntry(null);
+    if (result) {
       setResultShown(true);
       setScreen('result');
-    } else if (saved.screen === 'player' || !saved.name) {
+    } else if (!name) {
       setScreen('player');
     } else {
       setScreen('question');
@@ -98,13 +112,32 @@ export default function App() {
     }
     if (!res) res = analyzeLocally(name, answers);
     const wait = Math.max(0, MIN_ANALYZING_MS - (Date.now() - started));
+    const finalResult = res;
     setTimeout(() => {
-      setResult(res);
+      // あとから見返せるように履歴へ保存
+      const entry = addHistoryEntry({ name, answers, result: finalResult });
+      setHistory(loadHistory());
+      setHistoryId(entry.id);
+      setResult(finalResult);
       setResultShown(false);
+      setViewingEntry(null);
       setScreen('result');
       analyzingRef.current = false;
     }, wait);
   }, [name, answers]);
+
+  const openRecords = () => {
+    setHistory(loadHistory());
+    setViewingEntry(null);
+    setDirection('forward');
+    setScreen('records');
+  };
+
+  const deleteRecord = (entry: HistoryEntry) => {
+    if (!window.confirm(`「${entry.name}」の記録を削除します。よろしいですか？`)) return;
+    setHistory(deleteHistoryEntry(entry.id));
+    if (historyId === entry.id) setHistoryId(null);
+  };
 
   useEffect(() => {
     if (screen === 'analyzing') void runAnalysis();
@@ -136,8 +169,6 @@ export default function App() {
     }
   };
 
-  const hasProgress = checkProgress(saved);
-
   return (
     <div className="crt">
       <div className="glow-line" aria-hidden="true" />
@@ -150,9 +181,11 @@ export default function App() {
         {screen === 'start' && (
           <StartScreen
             hasProgress={hasProgress}
-            savedName={saved?.name ?? ''}
+            savedName={name}
+            recordCount={history.length}
             onStart={startFresh}
             onContinue={continueSaved}
+            onRecords={openRecords}
           />
         )}
 
@@ -189,16 +222,58 @@ export default function App() {
 
         {screen === 'analyzing' && <AnalyzingScreen name={name} />}
 
-        {screen === 'result' && result && (
+        {screen === 'records' && (
+          <RecordsScreen
+            entries={history}
+            onOpen={(entry) => {
+              setViewingEntry(entry);
+              setDirection('forward');
+              setScreen('result');
+            }}
+            onDelete={deleteRecord}
+            onBack={() => {
+              setDirection('back');
+              setScreen('start');
+            }}
+          />
+        )}
+
+        {screen === 'result' && viewingEntry && (
+          <ResultScreen
+            key={viewingEntry.id}
+            name={viewingEntry.name}
+            result={viewingEntry.result}
+            answers={viewingEntry.answers}
+            createdAt={viewingEntry.createdAt}
+            skipIntro
+            onBack={openRecords}
+            onNewPlayer={() => {
+              resetAll();
+              setScreen('player');
+            }}
+            deleteLabel="この記録を削除"
+            onDeleteData={() => {
+              setHistory(deleteHistoryEntry(viewingEntry.id));
+              if (historyId === viewingEntry.id) setHistoryId(null);
+              setViewingEntry(null);
+              setScreen('records');
+            }}
+          />
+        )}
+
+        {screen === 'result' && !viewingEntry && result && (
           <ResultScreen
             name={name}
             result={result}
+            answers={answers}
             skipIntro={resultShown}
             onNewPlayer={() => {
               resetAll();
               setScreen('player');
             }}
             onDeleteData={() => {
+              // 今回の回答データと、その記録を削除
+              if (historyId) setHistory(deleteHistoryEntry(historyId));
               resetAll();
               setScreen('start');
             }}

@@ -1,5 +1,5 @@
 import { QUESTION_COUNT } from '../data/questions';
-import type { SavedState } from './types';
+import type { HistoryEntry, SavedState } from './types';
 
 const KEY = 'hidden-skill:state:v1';
 const SOUND_KEY = 'hidden-skill:sound';
@@ -22,11 +22,57 @@ export function loadState(): SavedState | null {
       answers,
       index: Math.min(Math.max(parsed.index ?? 0, 0), QUESTION_COUNT - 1),
       result: parsed.result ?? null,
+      historyId: parsed.historyId ?? null,
       updatedAt: parsed.updatedAt ?? Date.now(),
     };
   } catch {
     return null;
   }
+}
+
+// ---- 履歴（RECORDS） ----
+const HISTORY_KEY = 'hidden-skill:history:v1';
+const HISTORY_MAX = 50;
+
+export function loadHistory(): HistoryEntry[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (e): e is HistoryEntry =>
+          typeof e === 'object' && e !== null && typeof (e as HistoryEntry).id === 'string' && Boolean((e as HistoryEntry).result),
+      )
+      .sort((a, b) => b.createdAt - a.createdAt);
+  } catch {
+    return [];
+  }
+}
+
+function writeHistory(entries: HistoryEntry[]): void {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, HISTORY_MAX)));
+  } catch {
+    /* noop */
+  }
+}
+
+export function addHistoryEntry(entry: Omit<HistoryEntry, 'id' | 'createdAt'>): HistoryEntry {
+  const created: HistoryEntry = {
+    ...entry,
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: Date.now(),
+  };
+  writeHistory([created, ...loadHistory()]);
+  return created;
+}
+
+export function deleteHistoryEntry(id: string): HistoryEntry[] {
+  const next = loadHistory().filter((e) => e.id !== id);
+  writeHistory(next);
+  return next;
 }
 
 export function saveState(state: Omit<SavedState, 'version' | 'updatedAt'>): void {

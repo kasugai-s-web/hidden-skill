@@ -1,18 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
+import { QUESTIONS } from '../data/questions';
 import { STAT_LABELS, STAT_ORDER } from '../data/strengths';
 import type { AnalysisResult } from '../lib/types';
 import { renderNodeToPng } from '../lib/renderCard';
 import { sound } from '../lib/sound';
+import { formatDate } from '../lib/format';
 import { PixelButton } from './PixelButton';
 import { ResultCard } from './ResultCard';
 
 interface Props {
   name: string;
   result: AnalysisResult;
+  /** 回答内容（見返し用。省略時は表示しない） */
+  answers?: string[];
+  /** 記録日時（RECORDS から開いたとき） */
+  createdAt?: number;
   /** 既に一度表示済みなら「FOUND!」演出を省く */
   skipIntro?: boolean;
+  /** RECORDS から開いた場合は一覧へ戻るボタンを出す */
+  onBack?: () => void;
   onNewPlayer: () => void;
+  /** 「回答データを削除」/「この記録を削除」 */
   onDeleteData: () => void;
+  deleteLabel?: string;
 }
 
 const RANK = ['1st', '2nd', '3rd'];
@@ -35,7 +45,17 @@ function canShareFiles(): boolean {
   return typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof navigator.canShare === 'function';
 }
 
-export function ResultScreen({ name, result, skipIntro = false, onNewPlayer, onDeleteData }: Props) {
+export function ResultScreen({
+  name,
+  result,
+  answers,
+  createdAt,
+  skipIntro = false,
+  onBack,
+  onNewPlayer,
+  onDeleteData,
+  deleteLabel = '回答データを削除',
+}: Props) {
   const [phase, setPhase] = useState<'found' | 'show'>(skipIntro ? 'show' : 'found');
   const [cardOpen, setCardOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -112,7 +132,10 @@ export function ResultScreen({ name, result, skipIntro = false, onNewPlayer, onD
   };
 
   const handleDelete = () => {
-    if (window.confirm('この回答データと結果を削除して、最初の画面に戻ります。よろしいですか？')) {
+    const text = onBack
+      ? `「${name}」の記録を削除します。よろしいですか？`
+      : 'この回答データと結果を削除して、最初の画面に戻ります。よろしいですか？';
+    if (window.confirm(text)) {
       onDeleteData();
     }
   };
@@ -139,6 +162,7 @@ export function ResultScreen({ name, result, skipIntro = false, onNewPlayer, onD
         <div className="result-head__label">RESULT</div>
         <div className="result-name">「{name}」</div>
         <div className="result-found">★ HIDDEN SKILL FOUND! ★</div>
+        {createdAt !== undefined && <div className="record-date">RECORDED {formatDate(createdAt)}</div>}
       </header>
 
       {/* メインの強み */}
@@ -208,19 +232,49 @@ export function ResultScreen({ name, result, skipIntro = false, onNewPlayer, onD
         </p>
       </div>
 
+      {answers && (
+        <div className="window">
+          <div className="window__title text-blue">ANSWERS</div>
+          <details className="answers">
+            <summary>回答を見返す（{answers.filter((a) => a.trim()).length} / {QUESTIONS.length}）</summary>
+            <ol className="answers__list">
+              {QUESTIONS.map((q, i) => (
+                <li key={q.id}>
+                  <div className="answers__q">
+                    <span className="q-mark">Q{q.id}</span>
+                    {q.text}
+                  </div>
+                  <p className={`answers__a${answers[i]?.trim() ? '' : ' is-empty'}`}>
+                    {answers[i]?.trim() || '（未回答）'}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </details>
+        </div>
+      )}
+
       <div className="result-actions">
         <PixelButton variant="secondary" se="save" onClick={openCard}>
           [ IMAGE SAVE ]
         </PixelButton>
+        {onBack && (
+          <PixelButton variant="ghost" se="back" onClick={onBack}>
+            ◀ RECORDS
+          </PixelButton>
+        )}
         <PixelButton se="start" onClick={onNewPlayer}>
           [ NEW PLAYER ]
         </PixelButton>
-        <span className="source-tag">ANALYSIS: {result.source === 'ai' ? 'AI' : 'LOCAL'}</span>
+        <span className="source-tag">
+          ANALYSIS: {result.source === 'ai' ? 'AI' : 'LOCAL'}
+          {!onBack && ' ・ SAVED TO RECORDS'}
+        </span>
       </div>
 
       <div className="result-footer">
         <button type="button" className="link-btn text-red" onClick={handleDelete}>
-          回答データを削除
+          {deleteLabel}
         </button>
       </div>
 

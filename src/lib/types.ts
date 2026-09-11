@@ -40,7 +40,7 @@ export interface AiAnalysisJson {
   };
 }
 
-export type Screen = 'start' | 'player' | 'question' | 'analyzing' | 'result';
+export type Screen = 'start' | 'player' | 'question' | 'analyzing' | 'result' | 'records';
 
 export interface SavedState {
   version: 1;
@@ -49,5 +49,16 @@ export interface SavedState {
   answers: string[];
   index: number;
   result: AnalysisResult | null;
+  /** 履歴に保存済みの結果なら、その ID */
+  historyId: string | null;
   updatedAt: number;
+}
+
+/** あとから見返すための保存済み診断 */
+export interface HistoryEntry {
+  id: string;
+  name: string;
+  answers: string[];
+  result: AnalysisResult;
+  createdAt: number;
 }
