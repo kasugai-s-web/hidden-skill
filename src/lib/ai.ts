@@ -1,6 +1,14 @@
 // AI API 連携（任意）。VITE_AI_ENDPOINT が設定されているときだけ使う。
 // ブラウザから直接 API キーを扱わないよう、サーバー側プロキシ（server-example/ 参照）を想定。
-import { CLASSES, STRENGTHS, STRENGTH_KEYS, type ClassKey, type StatKey } from '../data/strengths';
+import {
+  CLASSES,
+  STAT_LABELS_JA,
+  STAT_ORDER,
+  STRENGTHS,
+  STRENGTH_KEYS,
+  type ClassKey,
+  type StatKey,
+} from '../data/strengths';
 import { QUESTIONS } from '../data/questions';
 import type { AiAnalysisJson, AnalysisResult, TopStrength } from './types';
 
@@ -28,9 +36,11 @@ export function buildAnalysisPrompt(name: string, answers: string[]): string {
     '- 回答から見える「良いところ」だけを抽出してください。ネガティブな評価は一切出さないでください。',
     '- 回答が少ない・内容が薄い場合も勝手な性格判断はせず、「今回の回答からは○○という強みが特に見えました」という表現にしてください。',
     '- 本人に見せても嬉しくなる、具体的で温かい文章にしてください。回答に出てきたエピソードや言葉を活かしてください。',
-    `- 強みは次のカテゴリーから選んでください：${strengthList}`,
+    '- 「判断力」「信頼力」のような分かりやすい王道の能力ではなく、一緒に働いているからこそ見える「地味だが効いている力」を見つけてください。',
+    `- 強みは次のカテゴリーから選んでください（定義は各カテゴリーの説明に従う）：${strengthList}`,
+    ...STRENGTH_KEYS.map((k) => `  - ${STRENGTHS[k].ja}：${STRENGTHS[k].tagline.replace('\n', '')}`),
     `- className は次から選んでください：${classList}`,
-    '- stats は 1〜5 の整数で、この回答から相対的に見える特徴を表すだけにしてください（最低でも 2 以上）。',
+    `- stats は ${STAT_ORDER.map((s) => `${s}（${STAT_LABELS_JA[s]}）`).join('・')} の5軸を 1〜5 の整数で。この回答から相対的に見える特徴を表すだけにしてください（最低でも 2 以上）。`,
     '- summary は 100〜150 文字、message は 80〜150 文字程度の日本語。',
     '',
     '## 回答',
@@ -40,15 +50,15 @@ export function buildAnalysisPrompt(name: string, answers: string[]): string {
     '次の JSON だけを返してください（前後に説明文を付けない）。',
     JSON.stringify(
       {
-        mainStrength: '安心感',
-        mainStrengthDescription: '困ったときに自然と頼られる\nチームのセーフティーネット',
-        topStrengths: ['安心感', 'サポート力', '調整力'],
-        className: 'TEAM GUARDIAN',
-        classNameJa: 'チームの守護者',
-        classDescription: '安心して任せられる存在として、チームの土台を守る',
+        mainStrength: '未完了察知力',
+        mainStrengthDescription: '一見終わっている仕事から\n確認漏れや残作業を見つける力',
+        topStrengths: ['未完了察知力', '善意依存排除力', '違和感検知力'],
+        className: 'SENTINEL',
+        classNameJa: '見張り番',
+        classDescription: '小さな異変や漏れにいち早く気づき、問題になる前に知らせる',
         summary: '',
         message: '',
-        stats: { trust: 5, support: 4, action: 3, communication: 4, problemSolving: 3 },
+        stats: { sense: 5, design: 3, system: 4, judgment: 3, bridge: 2 },
       },
       null,
       2,
@@ -87,11 +97,11 @@ export function normalizeAiResult(json: AiAnalysisJson): AnalysisResult {
     .map(findStrengthByName);
   while (top.length < 3) top.push(main);
 
-  const classKey = findClass(json.className) ?? (main.key ? STRENGTHS[main.key].classKey : 'SUPPORTER');
+  const classKey = findClass(json.className) ?? (main.key ? STRENGTHS[main.key].classKey : 'SENTINEL');
   const cls = CLASSES[classKey];
 
   const stats = {} as Record<StatKey, number>;
-  for (const s of ['trust', 'support', 'action', 'communication', 'problemSolving'] as StatKey[]) {
+  for (const s of STAT_ORDER) {
     stats[s] = clampStat(json.stats?.[s]);
   }
 

@@ -47,13 +47,14 @@ const RESULT_SCHEMA = {
     stats: {
       type: 'object',
       additionalProperties: false,
-      required: ['trust', 'support', 'action', 'communication', 'problemSolving'],
+      // 察知 / 設計 / 仕組み化 / 判断 / 橋渡し
+      required: ['sense', 'design', 'system', 'judgment', 'bridge'],
       properties: {
-        trust: { type: 'integer', minimum: 1, maximum: 5 },
-        support: { type: 'integer', minimum: 1, maximum: 5 },
-        action: { type: 'integer', minimum: 1, maximum: 5 },
-        communication: { type: 'integer', minimum: 1, maximum: 5 },
-        problemSolving: { type: 'integer', minimum: 1, maximum: 5 },
+        sense: { type: 'integer', minimum: 1, maximum: 5 },
+        design: { type: 'integer', minimum: 1, maximum: 5 },
+        system: { type: 'integer', minimum: 1, maximum: 5 },
+        judgment: { type: 'integer', minimum: 1, maximum: 5 },
+        bridge: { type: 'integer', minimum: 1, maximum: 5 },
       },
     },
   },

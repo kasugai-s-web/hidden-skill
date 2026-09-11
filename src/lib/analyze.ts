@@ -80,13 +80,7 @@ function rankStrengths(scores: Record<StrengthKey, number>): StrengthKey[] {
 }
 
 export function computeStats(scores: Record<StrengthKey, number>): Record<StatKey, number> {
-  const raw: Record<StatKey, number> = {
-    trust: 0,
-    support: 0,
-    action: 0,
-    communication: 0,
-    problemSolving: 0,
-  };
+  const raw = Object.fromEntries(STAT_ORDER.map((s) => [s, 0])) as Record<StatKey, number>;
   for (const key of STRENGTH_KEYS) {
     raw[STRENGTHS[key].stat] += scores[key];
   }
@@ -113,7 +107,11 @@ function fill(template: string, name: string): string {
 function pickEpisode(answers: string[]): string | null {
   const candidates = [answers[9], answers[4], answers[3]]; // Q10 → Q5 → Q4
   for (const a of candidates) {
-    const t = (a ?? '').trim().replace(/\s+/g, ' ');
+    // ヒント選択直後の「〇〇：」のような末尾記号は落とす
+    const t = (a ?? '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[：:、。,.\s]+$/g, '');
     if (t.length >= 6) {
       return t.length > 34 ? `${t.slice(0, 33)}…` : t;
     }

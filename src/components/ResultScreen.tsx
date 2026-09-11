@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { QUESTIONS } from '../data/questions';
-import { STAT_LABELS, STAT_ORDER } from '../data/strengths';
+import { STAT_LABELS, STAT_LABELS_JA, STAT_ORDER } from '../data/strengths';
 import type { AnalysisResult } from '../lib/types';
 import { renderNodeToPng } from '../lib/renderCard';
 import { sound } from '../lib/sound';
@@ -169,7 +169,9 @@ export function ResultScreen({
       <div className="window window--yellow main-skill">
         <div className="main-skill__label">MAIN SKILL</div>
         <div className="main-skill__en">{result.mainStrength.en}</div>
-        <div className="main-skill__ja">{result.mainStrength.ja}</div>
+        <div className={`main-skill__ja${result.mainStrength.ja.length > 7 ? ' is-long' : ''}`}>
+          {result.mainStrength.ja}
+        </div>
         <p className="tagline">{result.mainStrengthDescription}</p>
       </div>
 
@@ -195,7 +197,9 @@ export function ResultScreen({
         <div className="stats">
           {STAT_ORDER.map((key) => (
             <div key={key} className="stat-row">
-              <span className="stat-row__label">{STAT_LABELS[key]}</span>
+              <span className="stat-row__label">
+                {STAT_LABELS[key]} <span className="stat-row__ja">{STAT_LABELS_JA[key]}</span>
+              </span>
               <Stars value={result.stats[key]} />
             </div>
           ))}

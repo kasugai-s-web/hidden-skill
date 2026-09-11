@@ -1,46 +1,52 @@
 // 強みカテゴリー・クラス（JOB）・文章テンプレートの一元管理
+//
+// 「判断力」「信頼力」のような王道の能力ではなく、
+// 一緒に働いているからこそ見える「地味だけど効いている力」を扱う。
 
 export type StrengthKey =
-  | 'trust'
-  | 'action'
-  | 'adjust'
-  | 'support'
-  | 'care'
-  | 'responsibility'
-  | 'calm'
-  | 'accuracy'
-  | 'speed'
-  | 'expertise'
-  | 'communication'
-  | 'teaching'
-  | 'persistence'
-  | 'problemSolving'
-  | 'teamwork'
-  | 'initiative'
-  | 'judgment'
-  | 'reassurance';
+  | 'anomalyDetection' // 違和感検知力
+  | 'ambiguityTolerance' // 曖昧耐性
+  | 'issueSeparation' // 論点分離力
+  | 'anticipatoryDesign' // 先回り設計力
+  | 'translation' // 翻訳力
+  | 'incompleteDetection' // 未完了察知力
+  | 'exceptionHandling' // 例外処理力
+  | 'reproducibility' // 再現可能化力
+  | 'withdrawalJudgment' // 撤退判断力
+  | 'cognitiveLoadReduction' // 認知負荷削減力
+  | 'temperatureAdjustment' // 温度差調整力
+  | 'bottleneckDiscovery' // ボトルネック発見力
+  | 'goodwillIndependence' // 善意依存排除力
+  | 'bufferReservation' // 余白確保力
+  | 'questionDesign' // 問いの設計力
+  | 'failureAssetization' // 失敗資産化力
+  | 'pendingManagement' // 保留管理力
+  | 'informationFreshness' // 情報鮮度管理力
+  | 'boundaryDesign' // 境界線設計力
+  | 'signalVerbalization'; // 小さな兆候の言語化力
 
 export type ClassKey =
-  | 'TEAM_GUARDIAN'
+  | 'SENTINEL'
+  | 'ARCHITECT'
   | 'STRATEGIST'
-  | 'MOOD_MAKER'
-  | 'PROBLEM_SOLVER'
-  | 'SUPPORTER'
-  | 'LEADER'
-  | 'SPECIALIST'
+  | 'TRANSLATOR'
   | 'CONNECTOR'
-  | 'CHALLENGER'
-  | 'NAVIGATOR';
+  | 'PATHFINDER'
+  | 'SYSTEM_BUILDER'
+  | 'CURATOR'
+  | 'INQUIRER'
+  | 'PROBLEM_SOLVER';
 
-export type StatKey = 'trust' | 'support' | 'action' | 'communication' | 'problemSolving';
+/** ステータス5軸 */
+export type StatKey = 'sense' | 'design' | 'system' | 'judgment' | 'bridge';
 
 export interface StrengthDef {
   key: StrengthKey;
   en: string;
   ja: string;
-  /** メイン強みの下に出す一言 */
+  /** メイン強みの下に出す一言（定義文） */
   tagline: string;
-  /** 意味判定用キーワード（部分一致） */
+  /** 意味判定用キーワード（部分一致・NFKC 正規化後） */
   keywords: string[];
   /** この強みが最も強いときのクラス */
   classKey: ClassKey;
@@ -60,154 +66,176 @@ export interface ClassDef {
 }
 
 export const CLASSES: Record<ClassKey, ClassDef> = {
-  TEAM_GUARDIAN: { key: 'TEAM_GUARDIAN', en: 'TEAM GUARDIAN', ja: 'チームの守護者', description: '安心して任せられる存在として、チームの土台を守る' },
-  STRATEGIST: { key: 'STRATEGIST', en: 'STRATEGIST', ja: '参謀', description: '状況を冷静に見極め、進むべき道を示す' },
-  MOOD_MAKER: { key: 'MOOD_MAKER', en: 'MOOD MAKER', ja: 'ムードメーカー', description: 'その場の空気を明るくし、チームの力を引き出す' },
-  PROBLEM_SOLVER: { key: 'PROBLEM_SOLVER', en: 'PROBLEM SOLVER', ja: '問題解決の達人', description: '困難な場面で原因を見つけ、前に進める' },
-  SUPPORTER: { key: 'SUPPORTER', en: 'SUPPORTER', ja: '縁の下の支え手', description: 'さりげない気遣いとフォローで、みんなを支える' },
-  LEADER: { key: 'LEADER', en: 'LEADER', ja: '牽引者', description: '先頭に立って動き、周囲を巻き込んで進める' },
-  SPECIALIST: { key: 'SPECIALIST', en: 'SPECIALIST', ja: '専門職人', description: '確かな知識と正確さで、質の高い仕事を積み上げる' },
-  CONNECTOR: { key: 'CONNECTOR', en: 'CONNECTOR', ja: 'つなぎ役', description: '人と人、部署と部署のあいだをつなぎ、物事を動かす' },
-  CHALLENGER: { key: 'CHALLENGER', en: 'CHALLENGER', ja: '挑戦者', description: '自ら新しいことに踏み出し、チームに刺激を与える' },
-  NAVIGATOR: { key: 'NAVIGATOR', en: 'NAVIGATOR', ja: '道しるべ', description: 'お手本となる姿勢で、仲間の成長を導く' },
+  SENTINEL: { key: 'SENTINEL', en: 'SENTINEL', ja: '見張り番', description: '小さな異変や漏れにいち早く気づき、問題になる前に知らせる' },
+  ARCHITECT: { key: 'ARCHITECT', en: 'ARCHITECT', ja: '設計者', description: '先を読み、人が迷わず動ける段取りと余白を設計する' },
+  STRATEGIST: { key: 'STRATEGIST', en: 'STRATEGIST', ja: '参謀', description: '論点を切り分け、続けるか引くかを見極めて進路を示す' },
+  TRANSLATOR: { key: 'TRANSLATOR', en: 'TRANSLATOR', ja: '通訳者', description: '難しい内容を相手の言葉に置き換え、理解の橋を架ける' },
+  CONNECTOR: { key: 'CONNECTOR', en: 'CONNECTOR', ja: 'つなぎ役', description: '関係者ごとの温度差を埋め、チームの足並みをそろえる' },
+  PATHFINDER: { key: 'PATHFINDER', en: 'PATHFINDER', ja: '開拓者', description: '正解もマニュアルもない場面で、目的を外さず道をつくる' },
+  SYSTEM_BUILDER: { key: 'SYSTEM_BUILDER', en: 'SYSTEM BUILDER', ja: '仕組み職人', description: '一度きりの対応や失敗を、誰でも回せる仕組みに変える' },
+  CURATOR: { key: 'CURATOR', en: 'CURATOR', ja: '情報の番人', description: '情報の鮮度と保留案件を管理し、判断材料を最新に保つ' },
+  INQUIRER: { key: 'INQUIRER', en: 'INQUIRER', ja: '問いの名手', description: '聞き方と順番を設計し、本当に必要な答えを引き出す' },
+  PROBLEM_SOLVER: { key: 'PROBLEM_SOLVER', en: 'PROBLEM SOLVER', ja: '真因ハンター', description: '全体を止めている本当の原因を見つけ、流れを取り戻す' },
 };
 
 export const STAT_LABELS: Record<StatKey, string> = {
-  trust: 'TRUST',
-  support: 'SUPPORT',
-  action: 'ACTION',
-  communication: 'COMMUNICATION',
-  problemSolving: 'PROBLEM SOLVING',
+  sense: 'SENSE',
+  design: 'DESIGN',
+  system: 'SYSTEM',
+  judgment: 'JUDGMENT',
+  bridge: 'BRIDGE',
 };
 
-export const STAT_ORDER: StatKey[] = ['trust', 'support', 'action', 'communication', 'problemSolving'];
+export const STAT_LABELS_JA: Record<StatKey, string> = {
+  sense: '察知',
+  design: '設計',
+  system: '仕組み化',
+  judgment: '判断',
+  bridge: '橋渡し',
+};
+
+export const STAT_ORDER: StatKey[] = ['sense', 'design', 'system', 'judgment', 'bridge'];
 
 export const STRENGTHS: Record<StrengthKey, StrengthDef> = {
-  trust: {
-    key: 'trust', en: 'TRUST', ja: '信頼力', classKey: 'TEAM_GUARDIAN', stat: 'trust',
-    tagline: '「この人なら大丈夫」と思わせる\nチームの安心の土台',
-    keywords: ['任せ', '信頼', '頼れ', '頼める', '確実', '裏切', '約束', '期待', '間違いな', '安定', 'きちんと', 'ちゃんと'],
-    summary: '{name}は、周囲から「この人なら任せられる」と自然に思われている人です。派手さよりも確実さで信頼を積み重ねてきたことが、今回の回答からはっきりと見えてきました。',
-    message: '「任せて大丈夫」と思ってもらえるのは、これまでの一つひとつの仕事の積み重ねがあるからです。その信頼は、周りが思っている以上に大きな支えになっています。',
+  anomalyDetection: {
+    key: 'anomalyDetection', en: 'ANOMALY SENSE', ja: '違和感検知力', classKey: 'SENTINEL', stat: 'sense',
+    tagline: '数字・文章・相手の反応から\n「いつもと違う」を察知する力',
+    keywords: ['違和感', 'いつもと違', 'おかしい', '変だ', '変だな', '気づく', '気づい', '気付', '察知', 'ズレ', 'ずれ', '矛盾', '異変', '様子が違', '顔色', '反応', '見抜', '引っかか', '怪しい', '数字が合', '数字を見て', '違うと感じ'],
+    summary: '{name}は、数字や文章、相手の反応のわずかなズレから「いつもと違う」を感じ取れる人です。その違和感を放置せず確かめることが、大きなトラブルを未然に防いでいることが今回の回答から見えてきました。',
+    message: '「なんか変だ」と気づけるのは、普段からよく見ているからです。あなたの違和感のおかげで、表に出なかった問題がいくつもあります。',
   },
-  action: {
-    key: 'action', en: 'ACTION', ja: '行動力', classKey: 'LEADER', stat: 'action',
-    tagline: '迷う前にまず動く\nチームを前に進めるエンジン',
-    keywords: ['すぐ動', '行動', '動く', '動いて', 'フットワーク', '率先', '実行', '飛び込', '手を動か', '真っ先', 'すぐに', '先頭'],
-    summary: '{name}は、誰かが迷っている間に、まず自分から動ける人です。その一歩が周囲の背中を押し、チーム全体の動きを速めていることが今回の回答から見えてきました。',
-    message: 'あなたが最初に動いてくれるおかげで、周りも「やってみよう」と思えています。その行動力に、みんなが何度も助けられています。',
+  ambiguityTolerance: {
+    key: 'ambiguityTolerance', en: 'AMBIGUITY TOLERANCE', ja: '曖昧耐性', classKey: 'PATHFINDER', stat: 'judgment',
+    tagline: '正解やルールが決まっていない状況でも\n止まらず進められる力',
+    keywords: ['曖昧', 'あいまい', '決まっていな', '決まってな', '正解がな', 'ルールがな', '前例がな', '不確か', '手探り', 'とりあえず進', 'まず動', '止まらず', '走りながら', '仮で', 'ざっくり', '初めての', '未確定', 'ふわっと', 'はっきりしな', '決まっていなくても'],
+    summary: '{name}は、正解やルールが決まっていない状況でも、手を止めずに進められる人です。「まだ決まっていない」ことを理由にせず、仮置きで動きながら形にしていく姿勢が、チームの停滞を防いでいることが今回の回答から見えてきました。',
+    message: '決まっていないことだらけの中で、あなたが動いてくれるから物事が前に進みます。その「止まらない力」に、周りは何度も救われています。',
   },
-  adjust: {
-    key: 'adjust', en: 'ADJUST', ja: '調整力', classKey: 'CONNECTOR', stat: 'communication',
-    tagline: '人と人のあいだをつなぎ\n物事を静かに前へ進める',
-    keywords: ['調整', '間に入', '橋渡し', '折衝', 'まとめ', '根回し', 'バランス', '仲介', '取り持', '合わせ', '段取り', '交渉'],
-    summary: '{name}は、立場の違う人たちのあいだに立って、うまく物事を進められる人です。目立ちにくい調整の積み重ねが、チームの摩擦を減らしていることが今回の回答から見えてきました。',
-    message: 'あなたが間に入ってくれるから、話がスムーズに進んでいます。表に出にくい調整の手間を、ちゃんと見ている人がいます。',
+  issueSeparation: {
+    key: 'issueSeparation', en: 'ISSUE SEPARATION', ja: '論点分離力', classKey: 'STRATEGIST', stat: 'judgment',
+    tagline: '感情・事実・責任・今後の対応を\n混ぜずに整理する力',
+    keywords: ['論点', '整理', '切り分け', '分けて', '感情', '事実', '責任', '混ぜ', '何が問題', '話を整理', '要点', '区別', '頭が整理', '一つずつ', 'ひとつずつ', '分解', '順番に', '本質', '何を決める'],
+    summary: '{name}は、感情・事実・責任・今後の対応が混ざりがちな場面で、それらを分けて整理できる人です。話しているうちに頭が整理される、と感じさせるその力が、チームの判断を落ち着かせていることが今回の回答から見えてきました。',
+    message: 'ごちゃごちゃになった話を、あなたが「まず事実から」と分けてくれるだけで、みんなが冷静に戻れます。その整理の力は、思っている以上に頼りにされています。',
   },
-  support: {
-    key: 'support', en: 'SUPPORT', ja: 'サポート力', classKey: 'SUPPORTER', stat: 'support',
-    tagline: '困っている人に気づき\n自然に手を差し伸べる',
-    keywords: ['サポート', '支え', '手伝', '助け', 'フォロー', '補助', '支援', '拾って', 'カバー', '引き受け', '助かる', '助かっ'],
-    summary: '{name}は、誰かが困っているときに、自然と手を差し伸べられる人です。頼まれる前に動くさりげないサポートが、チームの動きを楽にしていることが今回の回答から見えてきました。',
-    message: 'いつも当たり前のように助けてもらっていますが、その存在に救われている人は、思っている以上に多いと思います。',
+  anticipatoryDesign: {
+    key: 'anticipatoryDesign', en: 'FORESIGHT DESIGN', ja: '先回り設計力', classKey: 'ARCHITECT', stat: 'design',
+    tagline: '次に起こる質問やミスを予測し\n事前に仕組みへ組み込む力',
+    keywords: ['先回り', '予測', '事前に', 'あらかじめ', '先に', '想定', '前もって', '聞かれる前', '起こる前', '備え', '準備', '仕込', '先手', '布石', '先読み', '用意して', '予防', '転ばぬ先', '先を読'],
+    summary: '{name}は、次に来る質問やミスを予測して、先に手を打っておける人です。聞かれる前に用意されている資料や、起こる前に潰されている問題は、本人が思う以上にチームの時間を守っていることが今回の回答から見えてきました。',
+    message: '「もう用意してあります」の一言に、どれだけ助けられているか。あなたの先回りは、目立たないけれど確実にチームの時間を生み出しています。',
   },
-  care: {
-    key: 'care', en: 'CARE', ja: '気配り', classKey: 'SUPPORTER', stat: 'support',
-    tagline: '小さな変化に気づき\n言葉より先に動ける',
-    keywords: ['気配り', '気遣', '声をかけ', '声かけ', '察し', '気づい', '気付い', '配慮', '思いやり', '優し', '見てい', '心配', '寄り添'],
-    summary: '{name}は、周囲の小さな変化に気づき、さりげなく行動に移せる人です。その気配りが職場の空気を穏やかにし、みんなが働きやすくなっていることが今回の回答から見えてきました。',
-    message: 'あなたのさりげない一言や気遣いに、救われている人がたくさんいます。気づいてくれる人がいる、というだけで安心できるものです。',
+  translation: {
+    key: 'translation', en: 'TRANSLATION', ja: '翻訳力', classKey: 'TRANSLATOR', stat: 'bridge',
+    tagline: '専門的な内容を、相手の立場や知識に\n合わせて伝え直す力',
+    keywords: ['翻訳', '分かりやすく', 'わかりやすく', '分かりやすい', 'わかりやすい', '言い換え', '噛み砕', 'かみ砕', '相手に合わせ', '専門用語', '誰にでも分かる', '誰にでもわかる', '説明が上手', '説明がうま', '例え', 'たとえ', '初心者にも', 'レベルに合わせ', '伝え方', '相手の立場', '通訳', '説明してくれ'],
+    summary: '{name}は、専門的で難しい内容を、相手の立場や知識に合わせて伝え直せる人です。「あの人の説明なら分かる」と思われていることが、部署や立場をまたぐ仕事を滑らかにしていることが今回の回答から見えてきました。',
+    message: 'あなたが噛み砕いて話してくれるから、「分かったふり」をしなくて済んでいる人がたくさんいます。その翻訳の力は、チームの理解を底上げしています。',
   },
-  responsibility: {
-    key: 'responsibility', en: 'RESPONSIBILITY', ja: '責任感', classKey: 'TEAM_GUARDIAN', stat: 'trust',
-    tagline: '引き受けたことは最後まで\nやり遂げる芯の強さ',
-    keywords: ['責任', '最後まで', 'やり遂げ', '投げ出さ', '手を抜か', '真面目', '誠実', '妥協', '納期', '締め切り', '守る', '守って'],
-    summary: '{name}は、引き受けた仕事を最後までやり遂げる芯の強さを持った人です。その姿勢が周囲の安心につながり、チームの信頼を支えていることが今回の回答から見えてきました。',
-    message: '最後までやり切る姿を、周りはちゃんと見ています。あなたの責任感があるから、チームは安心して前に進めています。',
+  incompleteDetection: {
+    key: 'incompleteDetection', en: 'LOOSE-END RADAR', ja: '未完了察知力', classKey: 'SENTINEL', stat: 'sense',
+    tagline: '一見終わっている仕事から\n確認漏れや残作業を見つける力',
+    keywords: ['漏れ', '抜け', '確認漏れ', '残作業', 'やり残し', '終わったはず', '終わってない', '終わっていな', '忘れ', '未対応', '未完了', 'チェック', '見落と', '詰め', '最後の確認', '取りこぼし', '拾って', '拾う', '残って', '対応漏れ'],
+    summary: '{name}は、「終わった」ことになっている仕事の中から、確認漏れや残作業を見つけられる人です。誰も気づかないうちに拾われている抜けが、チームの信用を静かに守っていることが今回の回答から見えてきました。',
+    message: '「これ、まだ終わってないですよね」と言ってくれる人がいる安心感は、代えがたいものです。あなたが拾ってくれた抜けの数を、周りはちゃんと知っています。',
   },
-  calm: {
-    key: 'calm', en: 'CALM', ja: '冷静さ', classKey: 'STRATEGIST', stat: 'problemSolving',
-    tagline: '慌てる場面でも落ち着き\n周りに冷静さを取り戻させる',
-    keywords: ['冷静', '落ち着', '慌てな', '慌てず', '動じ', '淡々', '平常心', 'パニック', '焦らな', '焦らず', '穏やか', '静か'],
-    summary: '{name}は、慌ただしい場面でも落ち着いて状況を見られる人です。その冷静さが周囲の焦りをほぐし、チームが正しい判断に戻れる支えになっていることが今回の回答から見えてきました。',
-    message: 'みんなが焦っているときに、あなたが落ち着いているだけで、場の空気が変わります。その冷静さに、何度も助けられています。',
+  exceptionHandling: {
+    key: 'exceptionHandling', en: 'EXCEPTION HANDLING', ja: '例外処理力', classKey: 'PATHFINDER', stat: 'judgment',
+    tagline: 'マニュアルにないケースでも\n目的を外さず対応を組み立てる力',
+    keywords: ['例外', 'マニュアルにな', 'イレギュラー', '想定外', '初めてのケース', '臨機応変', 'その場で', '目的', '対応を組み立', '応用', 'ケースバイケース', '決まりがな', '特殊', '判断してくれ', '型にはま', '柔軟'],
+    summary: '{name}は、マニュアルにないケースに出会っても、「何のためにやるのか」から対応を組み立てられる人です。決まりがない場面で立ち止まらず、目的を外さない判断が、現場の困りごとを解決していることが今回の回答から見えてきました。',
+    message: 'マニュアルにないことが起きたとき、あなたに聞けば何とかなる。その安心感は、ルールを増やすよりずっとチームを強くしています。',
   },
-  accuracy: {
-    key: 'accuracy', en: 'ACCURACY', ja: '正確性', classKey: 'SPECIALIST', stat: 'problemSolving',
-    tagline: '細部まで丁寧に\nミスのない仕事を積み上げる',
-    keywords: ['正確', 'ミス', '丁寧', '細か', 'チェック', '確認', '抜け漏れ', '几帳面', '精度', '漏れ', '見落と', '緻密'],
-    summary: '{name}は、細かいところまで丁寧に確認し、正確な仕事を積み上げられる人です。目立たないその積み重ねが、チームのミスを未然に防いでいることが今回の回答から見えてきました。',
-    message: 'ミスがないのは「当たり前」ではなく、あなたが毎回ちゃんと確認しているからです。その丁寧さに、チームは守られています。',
+  reproducibility: {
+    key: 'reproducibility', en: 'REPRODUCIBILITY', ja: '再現可能化力', classKey: 'SYSTEM_BUILDER', stat: 'system',
+    tagline: '自分だけができる仕事を\n誰でもできる手順や仕組みに変える力',
+    keywords: ['手順', 'マニュアル', '仕組み', '誰でもできる', '誰にでもできる', '属人', 'テンプレ', 'ひな形', '雛形', '標準化', '共有できる形', '引き継', '言語化', 'ドキュメント', '自動化', 'フォーマット', '型に', '残して', '作ってくれ', '手順書'],
+    summary: '{name}は、自分がやっている仕事を「自分にしかできない」ままにせず、誰でもできる手順や仕組みに変えられる人です。その積み重ねが、人が入れ替わっても回るチームの土台になっていることが今回の回答から見えてきました。',
+    message: '自分の仕事を手放せる形にするのは、簡単なことではありません。あなたが残してくれた手順や仕組みは、これからも誰かを助け続けます。',
   },
-  speed: {
-    key: 'speed', en: 'SPEED', ja: 'スピード', classKey: 'CHALLENGER', stat: 'action',
-    tagline: '止まらないテンポで\nチームの流れをつくる',
-    keywords: ['速', '早', 'スピード', 'レスポンス', '即', 'テンポ', '素早', 'すぐ返'],
-    summary: '{name}は、レスポンスや仕事の速さで、チーム全体のテンポを上げている人です。「早く返ってくる」安心感が周囲の仕事を進めやすくしていることが今回の回答から見えてきました。',
-    message: 'あなたの速さのおかげで、周りの仕事が止まらずに進んでいます。そのスピードは、チームにとって大きな武器です。',
+  withdrawalJudgment: {
+    key: 'withdrawalJudgment', en: 'EXIT JUDGMENT', ja: '撤退判断力', classKey: 'STRATEGIST', stat: 'judgment',
+    tagline: '効果の薄い方法に執着せず\n適切なタイミングでやめられる力',
+    keywords: ['やめる', 'やめられる', 'やめよう', '撤退', '見切り', '引き際', '固執しな', '執着しな', '切り替え', '損切り', '方向転換', '諦める', 'あきらめる', '中止', '切り上げ', 'こだわらな', '潔', 'やめる判断', '引き返'],
+    summary: '{name}は、効果の薄い方法に執着せず、「ここでやめる」と言える人です。頑張り続けることが正解に見える場面で引き際を示せることが、チームの時間と気力を守っていることが今回の回答から見えてきました。',
+    message: '「やめよう」と言うのは、続けるより勇気がいります。あなたのその一言で、無駄に消耗せずに済んだことが何度もあります。',
   },
-  expertise: {
-    key: 'expertise', en: 'EXPERTISE', ja: '専門性', classKey: 'SPECIALIST', stat: 'problemSolving',
-    tagline: '確かな知識と経験で\n困ったときの頼れる相談先',
-    keywords: ['知識', '専門', '詳し', 'ノウハウ', 'スキル', '技術', '経験', 'プロ', '博識', '知って', '精通', '得意'],
-    summary: '{name}は、確かな知識と経験を持ち、困ったときに頼れる相談先になっている人です。その専門性がチームの判断を支え、質を高めていることが今回の回答から見えてきました。',
-    message: '「あの人に聞けば分かる」と思ってもらえる存在です。積み重ねてきた知識と経験が、チーム全体の力になっています。',
+  cognitiveLoadReduction: {
+    key: 'cognitiveLoadReduction', en: 'LOAD REDUCTION', ja: '認知負荷削減力', classKey: 'ARCHITECT', stat: 'design',
+    tagline: '情報や手順を整理し\n他人が迷わず動ける状態をつくる力',
+    keywords: ['迷わない', '迷わず', '分かりやすい資料', 'わかりやすい資料', '見やすい', 'シンプルに', '情報を整理', '一覧に', 'まとめて', '要約', '図に', 'まとめ', '片付', '導線', 'ラベル', '見える化', '可視化', '整えて', '整頓', '一目で', '読みやす'],
+    summary: '{name}は、情報や手順を整理して、他の人が迷わず動ける状態をつくれる人です。見やすい資料や一目で分かる一覧の裏にある工夫が、チーム全体の「考える負担」を減らしていることが今回の回答から見えてきました。',
+    message: 'あなたが整えてくれた資料や手順のおかげで、迷わずに済んでいる人がたくさんいます。「分かりやすい」の裏にある手間を、ちゃんと見ている人がいます。',
   },
-  communication: {
-    key: 'communication', en: 'COMMUNICATION', ja: 'コミュニケーション力', classKey: 'MOOD_MAKER', stat: 'communication',
-    tagline: '話しやすさが\n人と情報をつなぐ',
-    keywords: ['コミュニケーション', '話しやす', '伝え', '聞いて', '相談しやす', '明る', '会話', '話を', '聞き上手', '聞いてくれ', '相談', '話せ'],
-    summary: '{name}は、話しやすい雰囲気で、人と情報をつないでいる人です。相談しやすい存在であることがチームの風通しを良くしていることが今回の回答から見えてきました。',
-    message: 'あなたが話を聞いてくれるから、みんな安心して相談できています。その話しやすさは、チームにとってかけがえのないものです。',
+  temperatureAdjustment: {
+    key: 'temperatureAdjustment', en: 'ALIGNMENT', ja: '温度差調整力', classKey: 'CONNECTOR', stat: 'bridge',
+    tagline: '関係者ごとの危機感や優先度の違いを埋め\n足並みをそろえる力',
+    keywords: ['温度差', '足並み', '認識合わせ', '認識を合わせ', 'すり合わせ', '擦り合わせ', '危機感', '優先度', '巻き込', '合意', '納得', '関係者', '間に立', '橋渡し', '調整', 'ギャップを埋め', '同じ方向', '目線を合わせ', '説得', '共有して'],
+    summary: '{name}は、関係者ごとに違う危機感や優先度のズレに気づき、それを埋めて足並みをそろえられる人です。表に出にくい調整の積み重ねが、部署や立場をまたぐ仕事を前に進めていることが今回の回答から見えてきました。',
+    message: '「あの人と話しておきました」の一言で、どれだけ話が早くなったか。あなたが埋めてくれた温度差は、見えないところでチームを支えています。',
   },
-  teaching: {
-    key: 'teaching', en: 'TEACHING', ja: '教える力', classKey: 'NAVIGATOR', stat: 'communication',
-    tagline: '分かりやすく伝え\n仲間の成長を後押しする',
-    keywords: ['教え', '分かりやす', 'わかりやす', '指導', '育て', '学', '説明', '手本', 'お手本', '見習'],
-    summary: '{name}は、難しいことも分かりやすく伝え、周囲の成長を後押しできる人です。その教え方や姿勢がお手本となり、チームの底上げにつながっていることが今回の回答から見えてきました。',
-    message: 'あなたの説明で「分かった」と思えた人がたくさんいます。教えてもらったことは、ちゃんと次の人へ受け継がれています。',
+  bottleneckDiscovery: {
+    key: 'bottleneckDiscovery', en: 'BOTTLENECK FINDER', ja: 'ボトルネック発見力', classKey: 'PROBLEM_SOLVER', stat: 'sense',
+    tagline: '全体の進行を止めている\n本当の原因を特定する力',
+    keywords: ['ボトルネック', '原因', '根本', '本当の問題', '止まって', '詰まって', 'なぜ', '真因', '特定', 'ネック', '構造', '見つけ出', '突き止め', '滞', '本当の理由', '何が引っかか', '原因を探', '解決'],
+    summary: '{name}は、表面的な問題ではなく、全体の進行を本当に止めている原因を突き止められる人です。「実はここが詰まっていた」を見つけることが、チームの空回りを減らしていることが今回の回答から見えてきました。',
+    message: 'みんなが目の前の対応に追われているとき、あなたが「本当の原因はここ」と示してくれる。その一言で流れが変わった場面を、周りは覚えています。',
   },
-  persistence: {
-    key: 'persistence', en: 'PERSISTENCE', ja: '継続力', classKey: 'NAVIGATOR', stat: 'problemSolving',
-    tagline: '地道な積み重ねで\n確かな成果をつくる',
-    keywords: ['続け', '継続', 'コツコツ', '毎日', '地道', '粘り', '積み重ね', '諦めな', 'あきらめ', '地味', '根気', 'ずっと'],
-    summary: '{name}は、目立たないことも地道に続けられる人です。そのコツコツとした積み重ねが、気づかないうちにチームの基盤を強くしていることが今回の回答から見えてきました。',
-    message: '続けているのは「当たり前」ではありません。あなたが毎日積み重ねてくれていることを、ちゃんと見ている人がいます。',
+  goodwillIndependence: {
+    key: 'goodwillIndependence', en: 'FAIL-SAFE DESIGN', ja: '善意依存排除力', classKey: 'SYSTEM_BUILDER', stat: 'system',
+    tagline: '「誰かが気づくだろう」で回さず\n漏れない仕組みに変える力',
+    keywords: ['誰かが気づく', '気づくだろう', '誰かがやる', '漏れない仕組み', 'チェック機能', 'ダブルチェック', '仕組みに', 'リマインド', '自動で', '確認フロー', '抜けない', '頼らない', '属人', '担当を決め', '必ず通る', '網', '仕組み化', '漏れないように', '人に頼らず'],
+    summary: '{name}は、「誰かが気づくだろう」という善意頼みで回っている部分に気づき、漏れない仕組みに変えられる人です。人の注意力に頼らない仕組みづくりが、チームのミスを静かに減らしていることが今回の回答から見えてきました。',
+    message: '誰かの気配りに頼らなくても回るようにしてくれたのは、あなたです。仕組みになった瞬間、それは当たり前に見えてしまいますが、作った人がいることを忘れていません。',
   },
-  problemSolving: {
-    key: 'problemSolving', en: 'PROBLEM SOLVING', ja: '問題解決力', classKey: 'PROBLEM_SOLVER', stat: 'problemSolving',
-    tagline: '原因を見つけ\n止まった状況を動かす',
-    keywords: ['解決', '原因', '対処', '改善', '工夫', '突破', '対応策', '分析', '整理', '打開', '対応', '直して', '仕組み'],
-    summary: '{name}は、行き詰まった状況で原因を見つけ、前に進める人です。困ったときに「どうすればいいか」を示してくれることがチームの推進力になっていることが今回の回答から見えてきました。',
-    message: '止まっていた状況を動かしてくれたことが、何度もあります。あなたの「なんとかする力」に、チームは助けられています。',
+  bufferReservation: {
+    key: 'bufferReservation', en: 'BUFFER KEEPER', ja: '余白確保力', classKey: 'ARCHITECT', stat: 'design',
+    tagline: '突発対応が起きても崩れないよう\n時間や人員に余裕を残す力',
+    keywords: ['余白', '余裕', 'バッファ', '詰め込まな', '突発', '予備', 'ゆとり', '余力', '前倒し', '締め切りより前', '予定に余裕', '無理のない', 'スケジュール', '早めに', '余裕を持', '余裕をも', '詰めすぎ', '急な対応', '急に'],
+    summary: '{name}は、予定や人員に意図的な余白を残し、突発対応が起きても崩れない状態をつくれる人です。「急な依頼にも対応できた」の裏には、その余裕を先に確保していた設計があることが今回の回答から見えてきました。',
+    message: '急な対応が入っても崩れなかったのは、あなたが余白を残してくれていたからです。余裕は偶然ではなく、あなたが設計したものだと知っています。',
   },
-  teamwork: {
-    key: 'teamwork', en: 'TEAMWORK', ja: 'チーム貢献', classKey: 'MOOD_MAKER', stat: 'support',
-    tagline: 'チーム全体を見て\n場の力を引き出す',
-    keywords: ['チーム', '雰囲気', 'みんな', '全体', '協力', '場を', '盛り上げ', '和ま', '和む', '空気', '一体感', 'ムード', '笑'],
-    summary: '{name}は、自分の仕事だけでなく、チーム全体を見て動ける人です。その存在が場の雰囲気を良くし、みんなの力を引き出していることが今回の回答から見えてきました。',
-    message: 'あなたがいるだけで、チームの空気が少し軽くなります。その存在の大きさは、いなくなったときにこそ分かるものです。',
+  questionDesign: {
+    key: 'questionDesign', en: 'QUESTION DESIGN', ja: '問いの設計力', classKey: 'INQUIRER', stat: 'design',
+    tagline: '欲しい答えを得られるように\n質問の順番や聞き方を組み立てる力',
+    keywords: ['質問', '聞き方', '問い', 'ヒアリング', '引き出', '聞き出', '確認の仕方', '順番', '尋ね', '聞いてくれる', '投げかけ', '聞くのが上手', '聞くのがうま', '聞き上手', '本音', '質問して', '聞いてくれ', '整理してくれる質問'],
+    summary: '{name}は、欲しい答えにたどり着けるように、質問の順番や聞き方を組み立てられる人です。何気ない問いかけで相手の考えや本音を引き出すことが、話の行き違いを減らしていることが今回の回答から見えてきました。',
+    message: 'あなたの質問に答えているうちに、自分の考えが整理されていた。そんな経験をした人が、周りにたくさんいます。その問いの力は、静かに人を助けています。',
   },
-  initiative: {
-    key: 'initiative', en: 'INITIATIVE', ja: '主体性', classKey: 'CHALLENGER', stat: 'action',
-    tagline: '言われる前に考え\n自分から一歩踏み出す',
-    keywords: ['自分から', '自ら', '提案', '主体', '積極', '挑戦', '新しい', 'アイデア', '発案', '前向き', '率直', '進んで'],
-    summary: '{name}は、言われる前に自分で考え、動き出せる人です。新しい提案や挑戦がチームに刺激を与え、停滞を防いでいることが今回の回答から見えてきました。',
-    message: '自分から動いてくれるあなたの姿勢が、周りの「やってみよう」につながっています。その一歩を、みんなが頼りにしています。',
+  failureAssetization: {
+    key: 'failureAssetization', en: 'LESSON BUILDER', ja: '失敗資産化力', classKey: 'SYSTEM_BUILDER', stat: 'system',
+    tagline: 'ミスを謝って終わらせず\nルールやチェック機能として残す力',
+    keywords: ['失敗', 'ミス', '再発', '振り返り', '反省', 'ルール化', 'チェックリスト', '次に活か', '教訓', 'なぜなぜ', '二度と', '対策', '改善', '学びに', '同じミス', '繰り返さな', '再発防止', '仕組みに変え', '残して'],
+    summary: '{name}は、ミスやトラブルを謝って終わらせず、ルールやチェック機能として残せる人です。失敗をチームの資産に変えるその姿勢が、同じ問題の再発を確実に減らしていることが今回の回答から見えてきました。',
+    message: '失敗のあとに「次はこうしよう」を形にしてくれるのは、あなたです。おかげで同じ痛い思いをせずに済んだ人が、思っている以上にいます。',
   },
-  judgment: {
-    key: 'judgment', en: 'JUDGMENT', ja: '判断力', classKey: 'STRATEGIST', stat: 'problemSolving',
-    tagline: '迷う場面で\n的確に方向を決める',
-    keywords: ['判断', '決め', '決断', '見極め', '優先順位', '的確', '本質', '線引き', '決めて', '割り切'],
-    summary: '{name}は、迷う場面で的確に方向を決められる人です。その判断がチームの迷いを減らし、みんなが安心して動ける状況をつくっていることが今回の回答から見えてきました。',
-    message: '迷ったときにあなたが決めてくれるから、チームは前に進めます。その判断を、みんなが信頼しています。',
+  pendingManagement: {
+    key: 'pendingManagement', en: 'PENDING CONTROL', ja: '保留管理力', classKey: 'CURATOR', stat: 'system',
+    tagline: '今すぐ決められない案件を放置せず\n条件と期限を管理する力',
+    keywords: ['保留', 'ペンディング', '期限', '条件', '放置しな', '忘れずに', 'リスト', '管理', '追いかけ', 'フォロー', 'リマインド', 'いつまでに', '決められない案件', '持ち越し', '宙に浮', '止まっている案件', '進捗', '催促', '覚えて'],
+    summary: '{name}は、今すぐ決められない案件を放置せず、「いつ・何が決まれば動くか」を管理できる人です。宙に浮きがちな案件を追いかけ続けるその働きが、チームの取りこぼしを防いでいることが今回の回答から見えてきました。',
+    message: '「あの件、どうなりました？」と聞いてくれる人がいるから、忘れられる案件がありません。あなたが追いかけてくれている案件の数を、周りはちゃんと知っています。',
   },
-  reassurance: {
-    key: 'reassurance', en: 'REASSURANCE', ja: '安心感', classKey: 'TEAM_GUARDIAN', stat: 'trust',
-    tagline: '困ったときに自然と頼られる\nチームのセーフティーネット',
-    keywords: ['安心', 'いてくれ', '心強', '支柱', '頼りに', '大丈夫', '存在', 'ほっと', '落ち着け', '柱', '頼り'],
-    summary: '{name}は、目立つタイプではなくても、周囲の状況をよく見て自然に支えられる人です。困ったときに相談しやすく、チームに安心感を生み出していることが今回の回答から見えてきました。',
-    message: 'いつも当たり前のように助けてもらっていますが、その存在に救われている人は、思っている以上に多いと思います。',
+  informationFreshness: {
+    key: 'informationFreshness', en: 'INFO FRESHNESS', ja: '情報鮮度管理力', classKey: 'CURATOR', stat: 'sense',
+    tagline: '古い情報と最新情報を見分け\n判断材料を更新し続ける力',
+    keywords: ['最新', '古い情報', '更新', 'アップデート', '鮮度', '変わった', '最近の', '変更点', 'いつの情報', '正しい情報', '情報源', 'ソース', '今の状況', '変化', '古くな', '確認して', '調べて', '把握して', '追って'],
+    summary: '{name}は、古い情報と最新の情報を見分け、判断材料を更新し続けられる人です。「それ、変わりましたよ」と気づける習慣が、古い前提で進んでしまう失敗からチームを守っていることが今回の回答から見えてきました。',
+    message: '「その情報、もう変わってますよ」と教えてくれる人がいる。そのおかげで、古い前提のまま進んで痛い目を見ることが減っています。',
+  },
+  boundaryDesign: {
+    key: 'boundaryDesign', en: 'BOUNDARY DESIGN', ja: '境界線設計力', classKey: 'ARCHITECT', stat: 'design',
+    tagline: '誰がどこまで担当し、どの時点で\n相談・引継ぎするかを決める力',
+    keywords: ['担当', '役割', '線引き', 'どこまで', '引き継', '相談するタイミング', 'エスカレ', '責任範囲', '範囲', '分担', '決めてくれ', '窓口', '誰が', '境界', '任せる範囲', '役割分担', '持ち分', '線を引'],
+    summary: '{name}は、「誰がどこまでやるか」「どの時点で相談・引継ぎするか」を決められる人です。曖昧になりがちな境界線を引くことが、抱え込みや押し付け合いを防ぎ、チームを働きやすくしていることが今回の回答から見えてきました。',
+    message: '「ここまでは私、ここからはお願いします」と線を引いてくれるから、みんなが安心して自分の仕事に集中できます。その線引きは、思いやりの形だと思っています。',
+  },
+  signalVerbalization: {
+    key: 'signalVerbalization', en: 'EARLY SIGNAL VOICE', ja: '小さな兆候の言語化力', classKey: 'SENTINEL', stat: 'sense',
+    tagline: 'まだ問題になっていない変化を\n周囲が理解できる形で説明する力',
+    keywords: ['兆候', '言語化', '言葉にして', 'まだ問題にな', '早めに共有', '小さな変化', '芽', '違和感を伝え', '説明してくれ', '報告', 'アラート', '気になることを', '先に言って', '早めに気づ', '予兆', '早めに伝え', '共有してくれ', '教えてくれ', 'サイン'],
+    summary: '{name}は、まだ問題になっていない小さな変化を、周囲が理解できる言葉で説明できる人です。「なんとなく気になる」を具体的に伝えることで、チームが早めに手を打てていることが今回の回答から見えてきました。',
+    message: 'まだ誰も問題だと思っていないことを、言葉にして伝えるのは勇気がいります。あなたのその一言で、早めに動けたことが何度もあります。',
   },
 };
 
@@ -215,70 +243,78 @@ export const STRENGTH_KEYS = Object.keys(STRENGTHS) as StrengthKey[];
 
 /** 各質問が特に映しやすい強み（回答があるだけで少し加点する） */
 export const QUESTION_AFFINITY: Record<number, StrengthKey[]> = {
-  1: ['trust', 'expertise'],
-  2: ['teamwork', 'support'],
-  3: ['communication', 'reassurance'],
-  4: ['support', 'care'],
-  5: ['accuracy', 'persistence'],
-  6: ['calm', 'problemSolving'],
-  7: ['expertise', 'judgment'],
-  8: ['teaching', 'responsibility'],
-  9: ['persistence', 'teamwork'],
-  10: ['reassurance', 'trust'],
+  1: ['ambiguityTolerance', 'exceptionHandling'],
+  2: ['goodwillIndependence', 'incompleteDetection'],
+  3: ['issueSeparation', 'questionDesign'],
+  4: ['cognitiveLoadReduction', 'bufferReservation'],
+  5: ['anomalyDetection', 'anticipatoryDesign'],
+  6: ['bottleneckDiscovery', 'temperatureAdjustment'],
+  7: ['translation', 'withdrawalJudgment'],
+  8: ['reproducibility', 'failureAssetization'],
+  9: ['pendingManagement', 'informationFreshness'],
+  10: ['boundaryDesign', 'signalVerbalization'],
 };
 
 /** 「思いつかない…」ヒントの語からも強みを拾えるようにするための対応表 */
 export const HINT_KEYWORDS: Record<string, StrengthKey[]> = {
-  '資料作成': ['accuracy', 'trust'],
-  '顧客・取引先対応': ['communication', 'trust'],
-  '数字のチェック': ['accuracy'],
-  '段取り・調整': ['adjust'],
-  '急ぎのトラブル対応': ['problemSolving', 'speed'],
-  '情報の整理・共有': ['communication', 'problemSolving'],
-  '雰囲気づくり': ['teamwork'],
-  '細かい確認作業': ['accuracy'],
-  '誰も見ていない地味な作業': ['persistence', 'responsibility'],
-  '相談相手がいなくなる': ['reassurance', 'communication'],
-  '判断に迷うとき': ['judgment'],
-  '人間関係のこと': ['care', 'communication'],
-  '専門的な内容': ['expertise'],
-  '急ぎの対応': ['speed', 'action'],
-  '気持ちが落ち込んだとき': ['care', 'reassurance'],
-  '自然な声かけ': ['care'],
-  'さりげないフォロー': ['support'],
-  '段取りの良さ': ['adjust'],
-  '場の空気が和む': ['teamwork'],
-  '面倒な作業を引き受ける': ['support', 'responsibility'],
-  '仕事の速さ': ['speed'],
-  '気配り': ['care'],
-  '正確さ': ['accuracy'],
-  '知識': ['expertise'],
-  '説明の分かりやすさ': ['teaching'],
-  '責任感': ['responsibility'],
-  '冷静に状況を整理する': ['calm', 'problemSolving'],
-  'すぐに動く': ['action'],
-  '間に入って調整する': ['adjust'],
-  '周りを落ち着かせる': ['calm', 'reassurance'],
-  '原因を探す': ['problemSolving'],
-  '判断の速さ': ['judgment', 'speed'],
-  '説明力': ['teaching'],
-  '集中力': ['persistence'],
-  '人当たりの良さ': ['communication'],
-  '知識・経験': ['expertise'],
-  '粘り強さ': ['persistence'],
-  '挨拶・報連相': ['communication', 'responsibility'],
-  '丁寧さ': ['accuracy'],
-  '仕事への姿勢': ['responsibility'],
-  '相手への気遣い': ['care'],
-  '準備の仕方': ['accuracy', 'adjust'],
-  '地味な作業を続けている': ['persistence'],
-  '縁の下で支えている': ['support'],
-  '継続している努力': ['persistence'],
-  '周りへの配慮': ['care'],
-  'ミスしない安定感': ['accuracy', 'trust'],
-  '助けてもらったとき': ['support'],
-  'トラブルを乗り切ったとき': ['problemSolving', 'calm'],
-  '雰囲気が和んだとき': ['teamwork'],
-  '成果が出たとき': ['action', 'responsibility'],
-  '新しい提案をしてくれたとき': ['initiative'],
+  // Q1
+  'ルールが決まっていない仕事でも進めてくれる': ['ambiguityTolerance'],
+  'マニュアルにないケースの対応': ['exceptionHandling'],
+  '相手に合わせた説明・言い換え': ['translation'],
+  '期限や条件が曖昧な案件の管理': ['pendingManagement'],
+  '前例のない初めての仕事': ['ambiguityTolerance', 'exceptionHandling'],
+  // Q2
+  '「誰かがやるだろう」の抜けを拾っている': ['goodwillIndependence', 'incompleteDetection'],
+  '終わったはずの仕事の確認漏れに気づく': ['incompleteDetection'],
+  '手順を誰でもできる形にしている': ['reproducibility'],
+  '古い情報を更新してくれている': ['informationFreshness'],
+  '関係者の認識を揃えてくれている': ['temperatureAdjustment'],
+  // Q3
+  '何が問題なのか整理したいとき': ['issueSeparation'],
+  '聞き方・質問の仕方に迷うとき': ['questionDesign'],
+  '専門的な内容を伝える必要があるとき': ['translation'],
+  '担当や責任の線引きに迷うとき': ['boundaryDesign'],
+  'やめるべきか続けるべきか迷うとき': ['withdrawalJudgment'],
+  // Q4
+  '資料や手順が分かりやすく迷わない': ['cognitiveLoadReduction'],
+  '予定に余裕をもたせてくれる': ['bufferReservation'],
+  '先に起こりそうな問題を潰してくれる': ['anticipatoryDesign'],
+  '関係者の温度差を埋めてくれる': ['temperatureAdjustment'],
+  '保留案件を追いかけてくれる': ['pendingManagement'],
+  // Q5
+  '「いつもと違う」にすぐ気づく': ['anomalyDetection'],
+  '先回りして準備している': ['anticipatoryDesign'],
+  '難しい話を相手に合わせて言い換える': ['translation'],
+  '小さな異変を早めに言葉にする': ['signalVerbalization'],
+  '進行を止めている原因を見つける': ['bottleneckDiscovery'],
+  // Q6
+  '本当の原因を突き止める': ['bottleneckDiscovery'],
+  '感情と事実を分けて整理する': ['issueSeparation'],
+  'マニュアルにない対応を組み立てる': ['exceptionHandling'],
+  '関係者の足並みをそろえる': ['temperatureAdjustment'],
+  '効果の薄い方法をやめる判断': ['withdrawalJudgment'],
+  // Q7
+  '相手に合わせた説明力': ['translation'],
+  '曖昧な状況でも進める力': ['ambiguityTolerance'],
+  '欲しい答えを引き出す質問力': ['questionDesign'],
+  '引き際を見極める力': ['withdrawalJudgment'],
+  '先を読んで仕組みに組み込む力': ['anticipatoryDesign'],
+  // Q8
+  '仕事を手順や仕組みに残す姿勢': ['reproducibility'],
+  'ミスをルールやチェックに変える姿勢': ['failureAssetization'],
+  '担当と相談のタイミングの決め方': ['boundaryDesign'],
+  '情報の鮮度を確かめる習慣': ['informationFreshness'],
+  '「誰かが気づくだろう」にしない姿勢': ['goodwillIndependence'],
+  // Q9
+  '保留案件を放置せず管理している': ['pendingManagement'],
+  '情報を最新に保っている': ['informationFreshness'],
+  '突発対応に備えて余裕を残している': ['bufferReservation'],
+  '誰でもできる仕組みにしている': ['reproducibility', 'goodwillIndependence'],
+  '確認漏れを地味に拾っている': ['incompleteDetection'],
+  // Q10
+  '担当や引継ぎの線を引いてくれた': ['boundaryDesign'],
+  '小さな兆候を早めに伝えてくれた': ['signalVerbalization'],
+  'トラブルの原因を突き止めてくれた': ['bottleneckDiscovery'],
+  '不確かな状況でも進めてくれた': ['ambiguityTolerance'],
+  'ミスを仕組みに変えてくれた': ['failureAssetization'],
 };

@@ -1,7 +1,8 @@
 import { QUESTION_COUNT } from '../data/questions';
 import type { HistoryEntry, SavedState } from './types';
 
-const KEY = 'hidden-skill:state:v1';
+// v2: 強みカテゴリーとステータス軸を刷新（v1 のデータは互換性がないため読まない）
+const KEY = 'hidden-skill:state:v2';
 const SOUND_KEY = 'hidden-skill:sound';
 
 export function emptyAnswers(): string[] {
@@ -31,7 +32,7 @@ export function loadState(): SavedState | null {
 }
 
 // ---- 履歴（RECORDS） ----
-const HISTORY_KEY = 'hidden-skill:history:v1';
+const HISTORY_KEY = 'hidden-skill:history:v2';
 const HISTORY_MAX = 50;
 
 export function loadHistory(): HistoryEntry[] {

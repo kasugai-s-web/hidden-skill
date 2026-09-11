@@ -31,13 +31,8 @@ export interface AiAnalysisJson {
   classDescription: string;
   summary: string;
   message: string;
-  stats: {
-    trust: number;
-    support: number;
-    action: number;
-    communication: number;
-    problemSolving: number;
-  };
+  /** sense / design / system / judgment / bridge を 1〜5 で */
+  stats: Record<StatKey, number>;
 }
 
 export type Screen = 'start' | 'player' | 'question' | 'analyzing' | 'result' | 'records';

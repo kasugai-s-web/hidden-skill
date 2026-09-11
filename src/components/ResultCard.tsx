@@ -25,7 +25,9 @@ export const ResultCard = forwardRef<HTMLDivElement, Props>(function ResultCard(
       <div className="card__main">
         <div className="card__section-label">MAIN SKILL</div>
         <div className="card__main-en">{result.mainStrength.en}</div>
-        <div className="card__main-ja">{result.mainStrength.ja}</div>
+        <div className={`card__main-ja${result.mainStrength.ja.length > 7 ? ' is-long' : ''}`}>
+          {result.mainStrength.ja}
+        </div>
         <div className="card__tagline">{result.mainStrengthDescription}</div>
       </div>
 
